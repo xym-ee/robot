@@ -1,10 +1,10 @@
-title:        临时笔记
+title:        机器人开发技术
 description:  xyMeng
 
 theme: null
 
-url: "https://xu.yumeng.website"
-baseurl: "/notebook"
+url: "https://xu.yumeng.tech"
+baseurl: "/robot"
 
 # debug:
 #   compress: true
@@ -15,7 +15,7 @@ gittalk:
   enable:       true
   clientID:     5c4a4805389461265123
   clientSecret: b13a143f197a4e12a8295c256b366d884ec661d8
-  repo:         notebook
+  repo:         robot
   owner:        Meng2025
   admin:        Meng2025
   id:           comments
