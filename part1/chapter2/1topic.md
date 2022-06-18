@@ -25,32 +25,9 @@ ROS master 已经有了，和计算机通信网络知识相关的TCP连接的建
 - 使用ROS类实现接收方
 - 数据(此处为普通文本)
 
-
-
-```c++
-/*
-    需求: 实现基本的话题通信，一方发布数据，一方接收数据，
-         实现的关键点:
-         1.发送方
-         2.接收方
-         3.数据(此处为普通文本)
-
-         PS: 二者需要设置相同的话题
-
-    消息发布方:
-        循环发布信息:HelloWorld 后缀数字编号
-
-    实现流程:
-        1.包含头文件 
-        2.初始化 ROS 节点:命名(唯一)
-        3.实例化 ROS 句柄
-        4.实例化 发布者 对象
-        5.组织被发布的数据，并编写逻辑发布数据
-
-*/
-// 1.包含头文件 
+```cpp
 #include "ros/ros.h"
-#include "std_msgs/String.h" //普通文本类型的消息
+#include "std_msgs/String.h"
 #include <sstream>
 
 int main(int argc, char *argv[])
@@ -58,77 +35,42 @@ int main(int argc, char *argv[])
     //设置编码
     setlocale(LC_ALL,"");
 
-    //2.初始化 ROS 节点:命名(唯一)
-    // 参数1和参数2 后期为节点传值会使用
-    // 参数3 是节点名称，是一个标识符，需要保证运行后，在 ROS 网络拓扑中唯一
     ros::init(argc,argv,"talker");
-    //3.实例化 ROS 句柄
-    ros::NodeHandle nh;//该类封装了 ROS 中的一些常用功能
 
-    //4.实例化 发布者 对象
-    //泛型: 发布的消息类型
-    //参数1: 要发布到的话题
-    //参数2: 队列中最大保存的消息数，超出此阀值时，先进的先销毁(时间早的先销毁)
+    ros::NodeHandle nh;
+
     ros::Publisher pub = nh.advertise<std_msgs::String>("chatter",10);
 
-    //5.组织被发布的数据，并编写逻辑发布数据
-    //数据(动态组织)
     std_msgs::String msg;
-    // msg.data = "你好啊！！！";
+
     std::string msg_front = "Hello 你好！"; //消息前缀
     int count = 0; //消息计数器
 
-    //逻辑(一秒10次)
     ros::Rate r(1);
 
-    //节点不死
     while (ros::ok())
     {
-        //使用 stringstream 拼接字符串与编号
         std::stringstream ss;
         ss << msg_front << count;
         msg.data = ss.str();
-        //发布消息
         pub.publish(msg);
-        //加入调试，打印发送的消息
+
         ROS_INFO("发送的消息:%s",msg.data.c_str());
 
-        //根据前面制定的发送贫频率自动休眠 休眠时间 = 1/频率；
         r.sleep();
-        count++;//循环结束前，让 count 自增
-        //暂无应用
+        count++;
+
         ros::spinOnce();
     }
-
-
     return 0;
 }
-
 ```
 
+- 初始化ROS节点
+- 订阅话题
+- 循化等待，新消息由回调函数去处理
 
-```c++
-/*
-    需求: 实现基本的话题通信，一方发布数据，一方接收数据，
-         实现的关键点:
-         1.发送方
-         2.接收方
-         3.数据(此处为普通文本)
-
-
-    消息订阅方:
-        订阅话题并打印接收到的消息
-
-    实现流程:
-        1.包含头文件 
-        2.初始化 ROS 节点:命名(唯一)
-        3.实例化 ROS 句柄
-        4.实例化 订阅者 对象
-        5.处理订阅的消息(回调函数)
-        6.设置循环调用回调函数
-
-*/
-// 1.包含头文件 
+```cpp
 #include "ros/ros.h"
 #include "std_msgs/String.h"
 
@@ -136,6 +78,7 @@ void doMsg(const std_msgs::String::ConstPtr& msg_p){
     ROS_INFO("我听见:%s",msg_p->data.c_str());
     // ROS_INFO("我听见:%s",(*msg_p).data.c_str());
 }
+
 int main(int argc, char  *argv[])
 {
     setlocale(LC_ALL,"");
@@ -153,6 +96,65 @@ int main(int argc, char  *argv[])
 
     return 0;
 }
+```
+
+订阅者有回调函数的概念，订阅者并不知道消息什么时候来，但是一旦有消息，就会调用这个消息处理函数。
+
+`ros::spin()` 是循环等待函数。
+
+编译完成后，会生成可执行文件，在devel文件夹内，可以直接在终端启动。也就是说可以从目录打开这些生成的文件，但是呢一般都是直接启动终端就运行的，所以前面会有添加环境变量这个步骤，就不用切换到这个路径了。
+
+
+## 自定义 Topic 消息格式
+
+自己做机器人，可能 ROS 提供的格式不够用，需要自己定义一个格式。
+
+- 定义 msg 文件
+- 在 package.xml 里添加功能包依赖
+- 在 Cmakeists.txt 添加编译选项
+
+定义消息格式的文件`Person.msg`
+```txt
+string name
+uint8  sex
+uint8  age
+
+uint8 unknown = 0
+uint8 male    = 1
+uint8 female  = 2
+```
+
+这里想用常量类似C语言enum去描述sex属性，这个文件并不是c类型也不是py，可以认为就是个普通文本。
+
+在package.xml文件里需要加上一些东西，来说明这个包有用到自己定义的消息格式
+```xml
+<build_depend>message_generation</build_depend>
+
+<exec_depend>message_runtime</exec_depend>  
+```
+在CMakests里也需要添加一个依赖
+```makefile
+find_package(
+    ...
+    message_generation
+    ...
+)
+catkin_package(
+  CATKIN_DEPENDS roscpp rospy std_msgs message_runtime
+)
+
+
+add_message_files(FILES Person.msg)
+
+```
+
+这样就可以进行编译了，编译完成后会自动生成C++、Python、各种语言的东西。
+
+这就是**语言无关的消息类型接口**，用文本表述消息类型，自动生成各种东西。
+
+在终端里，可以查看消息类型是否定义成功：
+```bash
+rosmsg show Person
 ```
 
 
