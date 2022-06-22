@@ -15,13 +15,17 @@ sort: 4
 </figure>
 
 
-
 ## 自定义通信格式
-
 
 ### 消息格式的定义
 
-需要使用action通信的功能包依赖  `actionlib` 和 `actionlib_msgs`，在功能包下新建`action`目录，使用`xxxx.action`文件来描述通信消息的格式。
+需要使用action通信的功能包依赖  `actionlib` 和 `actionlib_msgs`，
+
+```bash
+catkin_create_pkg action_learn std_msgs roscpp rospy actionlib actionlib_msgs
+```
+
+在功能包下新建 `action` 目录，使用 `sum.action` 文件来描述通信消息的格式。
 
 
 ```txt
@@ -37,20 +41,98 @@ float64 progress_bar
 
 ### 编译规则
 
+在功能包的 `CMakeLists.txt`
+
+```makefile
+add_action_files(
+  FILES
+  sum.action
+)
+```
+
+```makefile
+generate_messages(
+  DEPENDENCIES
+  std_msgs
+  actionlib_msgs
+)
+```
+
+```makefile
+catkin_package(
+
+#  INCLUDE_DIRS include
+#  LIBRARIES demo04_action
+
+ CATKIN_DEPENDS roscpp rospy std_msgs actionlib actionlib_msgs
+
+#  DEPENDS system_lib
+
+)
+```
 
 
 ### 生成文件
 
+编译后会生成一些中间文件。
+
+在`devel/share/包名/msg`里可以看到生成的消息
+
+使用这些消息时，如果用C++开发，包含消息头文件，在
+
+`devel/include/包名`
+
+如果使用Python开发，导入
+
+`devel/lib/python3/dist-packages/包名/msg/`
 
 
 ## C++实现
+
+已经有需要的消息格式文件了。
+
+去实现一个使用action通信的例子
+
+- 服务端
+- 客户端
+- 编辑CMakeLists.txt；
+
 
 ### 需求分析
 
 实现两个节点，客户端发送正整数，服务端计算整数和，返回结果，同时要有进度提示。
 
-### 服务端
+### 添加头文件路径
 
+使用VSCODE开发的话，编辑c_cpp_properies.json文件
+
+```json
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "",
+                "limitSymbolsToIncludedHeaders": true
+            },
+            "includePath": [
+                "/opt/ros/noetic/include/**",
+                "/usr/include/**",
+                "/xxx/yyy工作空间/devel/include/**" //配置 head 文件的路径 
+            ],
+            "name": "ROS",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "c11",
+            "cppStandard": "c++17"
+        }
+    ],
+    "version": 4
+}
+```
+
+
+
+### 服务端
 
 
 ```c++
