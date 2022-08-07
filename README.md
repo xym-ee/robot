@@ -13,11 +13,7 @@
 
 **如果我在内容上有理解错误，或者表达不严谨、符号不规范的地方，还请不吝指正。**
 
-<img src = "./images/wechat.png" width="100px" align="right"/>
-
-我的邮箱地址：[*m@njust.edu.cn*]()
-
-或者扫描右侧二维码添加我的微信交流
+我的邮箱地址：<m@njust.edu.cn>
 
 ---
 
