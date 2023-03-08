@@ -3,6 +3,8 @@ sort: 2
 ---
 # Kinematics and Inverse Kinematics
 
+运动学和逆运动学
+
 机器人的本体
 
 - Link Connection
@@ -21,9 +23,6 @@ sort: 2
 
 能到的位置并不是所有的速度都能达到，速度也是个限制。速度在下一部分学。
 
-连接相邻两个刚体的的结构：运动副，分为高副和**低副**(low pair)。
-
-机器人常用的低副关节：转动副(Revolute)，移动副(Prismatic)，球面轴(Spherical)，螺旋副(Screw)
 
 
 
