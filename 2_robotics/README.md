@@ -1,6 +1,10 @@
 ---
-sort: 1
+sort: 2
 ---
+# 机械臂
+
+# INTRODUCTION TO ROBOTICS
+
 # 机器人学导论
 
 
